@@ -1,0 +1,4 @@
+xterm*dynamicColors:    true
+xterm*background: #20202f
+xterm*foreground: #d2d2d2
+xterm*utf8:             2
