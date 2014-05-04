@@ -13,9 +13,9 @@ TEXT
  ${fs_used /}/${fs_size /} |\
  ^fg(\#99CCFF)swap^fg() ${swapperc}% |\
  ^fg(\#99CCFF)^i(/usr/share/icons/stlarch_icons/wireless1.xbm)^fg()\
- ${if_up wlo1}^fg(green)${addr wlo1}^fg()$else ^fg(red) Down$endif |\
+ ${if_up wlo1}^fg(green)${addr wlo1}^fg()$else ^fg(red)down$endif |\
  ^fg(\#99CCFF)vpn^fg()\
- ${if_up tun0}^fg(green)up${else}^fg(red)down^fg()$endif |\
+ ${if_up tun0}^fg(green)${addr tun0}^fg()$else ^fg(red)down^fg()$endif |\
  $if_mpd_playing^fg(\#99CCFF)^i(/usr/share/icons/stlarch_icons/headphone1.xbm)^fg()\
   $mpd_smart |$endif\
  ^fg(\#99CCFF)^i(/usr/share/icons/stlarch_icons/edit2.xbm)^fg()\
