@@ -6,9 +6,11 @@ use_spacer none
 short_units on
 TEXT
  ^fg(\#99CCFF)^i(/usr/share/icons/stlarch_icons/cpu13.xbm)^fg()\
- ${cpu}% |\
+ ${loadavg 1} |\
  ^fg(\#99CCFF)^i(/usr/share/icons/stlarch_icons/mem1.xbm)^fg()\
  ${memperc}% |\
+ ^fg(\#99CCFF)^i(/usr/share/icons/stlarch_icons/temp2.xbm)^fg()\
+ ${acpitemp}º C |\
  ^fg(\#99CCFF)^i(/usr/share/icons/stlarch_icons/home1.xbm)^fg()\
  ${fs_used /}/${fs_size /} |\
  ^fg(\#99CCFF)swap^fg() ${swapperc}% |\
@@ -22,5 +24,8 @@ TEXT
  [${exec aticonfig --pxl | awk '{print$2}' | cut -c1}]  |\
  ^fg(\#99CCFF)^i(/usr/share/icons/stlarch_icons/batt10.xbm)^fg()\
  ${battery} |\
+ ^fg(\#99CCFF)^i(/usr/share/icons/stlarch_icons/info1.xbm)^fg()\
+ ${weather http://weather.noaa.gov/pub/data/observations/metar/stations/ SAME temperature 5}º C\
+ ${weather http://weather.noaa.gov/pub/data/observations/metar/stations/ SAME cloud_cover 5} |\
  ^fg(\#99CCFF)^i(/usr/share/icons/stlarch_icons/clock2.xbm)^fg()\
- ${time %A%e de %B  %H:%M %p} 
+ ${time %A%e, %B  %H:%M %p} 
