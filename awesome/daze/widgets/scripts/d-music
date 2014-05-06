@@ -1,0 +1,58 @@
+#!/bin/bash
+
+source $(dirname $0)/d-conf
+
+XPOS=$(xdotool getmouselocation | awk -F " " '{print $1}' | cut -d ":" -f 2)
+#YPOS="14"
+#TIMING="5"
+
+HEIGHT="12"
+WIDTH="144"
+LINES="8"
+ALIGN="left"
+
+avol=$(amixer | grep "Master" -A 5 | grep -o "\[.*%" | sed "s/\[//")
+alsavol="^fg($FG2)Alsa Volume: ^fg($FG1)$avol"
+
+buttons=" ^ca(1, mpc prev)⮳  ^ca()  ^ca(1, mpc pause)⮔ ^ca()  ^ca(1, mpc play)⮓ ^ca()  ^ca(1, mpc next)⮲  ^ca() "
+
+if [ "`mpc 2>&1 | wc -l`" -gt "1" ]; then
+	so=`mpc current -f %title%`
+	arta=`mpc current -f %artist%`
+	alba=`mpc current -f %album%`
+	art=`mpc current -f %artist% | sed -e 's/\//-/g'`
+	alb=`mpc current -f %album% | sed -e 's/\//-/g'`
+	ti=$(mpc | sed -n "2p" | awk -F " " '{print $3}')
+	artist="^fg($FG2)Artist: ^fg($FG1)$arta"
+	album="^fg($FG2)Album: ^fg($FG1)$alba"
+	time="^fg($FG2)Time: ^fg($FG1)$ti"
+	
+	if [ "`mpc | grep "^\[paused\]"`" != "" ]; then
+		np="^fg($red)Paused: ^fg($FG2)$so ^fg($FG1)by ^fg($FG2)$art"
+	else
+		np="^fg($red)Playing: ^fg($FG2)$so ^fg($FG1)by ^fg($FG2)$art"
+	fi
+	
+	perc=`mpc | awk 'NR == 2 {gsub(/[()%]/,""); print $4}'`
+	percwidth=$(( $WIDTH - 10 ))
+	percbar=`echo -e "$perc" | gdbar -bg $bar_bg -fg $foreground -h 1 -w $percwidth`
+	albumart="/home/phallus/mu/thumbs/$(ls ~/mu/thumbs | grep "$art - $alb.png")"
+	
+	nowplaying="$np"
+	playing=$(mpc current)
+	playlistcurrent=$(mpc playlist | grep -n "$playing" | cut -d ":" -f 1)
+	tnum=$(mpc -f %track% | sed -n "1p")
+	track="^fg($FG2)Track Number: ^fg($FG1)$tnum"	
+	mvol=$(mpc volume | awk -F " " '{print $2}')
+	
+	if [ "$(mpc volume)" != "volume:100%" ]; then
+		mpdvol="^fg($FG2)MPD Volume: ^fg($FG1)$mvol"
+	else
+		mpdvol="^fg($FG2)MPD Volume: ^fg($FG1)100%"
+	fi
+	
+	feh -B black -g +$(($XPOS-108))+$(($YPOS)) "$albumart" --title feh &
+	(echo "$nowplaying"; echo " $artist"; echo " $album"; echo " $time"; echo " $track"; echo " "; echo " $percbar";echo "^fg($cyan)      $buttons"; echo " "; sleep $TIMING) | dzen2 -bg $BG -fn $FONT -x $XPOS -y $YPOS -w $WIDTH -h $HEIGHT -l $LINES -e 'onstart=uncollapse;button1=exit;button2=exit;button3=exit;button4=exit;button5=exit;onexit=exec:killall feh'
+else
+	(echo "^fg($FG2)MPD is not playing."; sleep 1) | dzen2 -bg $BG -fn $FONT -x $XPOS -y $YPOS -w 95 -h $HEIGHT -l 0 -ta "center" -sa $ALIGN -e 'onstart=uncollapse;button1=exit;button2=exit;button3=exit;button4=exit;button5=exit'
+fi

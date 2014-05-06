@@ -1,0 +1,20 @@
+#!/bin/bash
+
+source $(dirname $0)/d-conf
+sc="$(dirname $0)/classes"
+XPOS=1470
+WIDTH=125
+
+
+lines="$(sed = ~/.todo | sed 'N;s/\n/ /' | awk -F " " '{print $1}' | sed -n '$p')"
+LINES="$(( $lines + 1))"
+lin="2"
+
+buttons=" ^fg($FG2)^ca($sc1)⮳  ^ca()                   ^ca($sc3)⮲  ^ca()^fg()"
+
+
+if [ "$lines" != "" ]; then
+	(echo "^fg($FG2)things to do"; echo "^fg($FG1)$(cat ~/.todo | grep -v '# *')"; echo ; sleep $TIMING) | dzen2 -bg $BG -fn $FONT -x $XPOS -y $YPOS -w $WIDTH -l $LINES -e 'onstart=uncollapse;button1=exit;button3=exit;button2=exit;button3=exit;button4=exit;button5=exit'
+elif [ "$lines" = "" ]; then
+	(echo "^fg($FG2)nothing to do!"; echo ; sleep $TIMING) | dzen2 -bg $BG -fn $FONT -x $XPOS -y $YPOS -w $WIDTH -l $LINES -e 'onstart=uncollapse;button1=exit;button3=exit;button2=exit;button3=exit;button4=exit;button5=exit'
+fi

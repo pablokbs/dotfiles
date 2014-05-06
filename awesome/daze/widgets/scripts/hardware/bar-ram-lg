@@ -1,0 +1,17 @@
+#!/bin/bash
+source $(dirname $0)/d-conf
+
+FREE=`free -m | awk 'NR == 3 {gsub(/%/,""); print $3}'`
+MAX=`free -m | awk 'NR == 2 {gsub(/%/,""); print $2}'`
+PERC=`echo $FREE*100/$MAX | bc`
+
+ICON="mem.xbm"
+if [[ $PERC -gt 75 ]]; then
+	PERCBAR=`echo -e "$PERC"\
+	| gdbar -bg $bar_bg -fg $warning -h 1 -w 115`
+else
+	PERCBAR=`echo -e "$PERC"\
+	| gdbar -bg $bar_bg -fg $foreground -h 1 -w 115`
+fi
+
+echo "^fg($FG2) ⮥ RAM^fg()  $PERCBAR ^fg($highlight)$PERC%"

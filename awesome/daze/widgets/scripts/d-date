@@ -1,0 +1,25 @@
+#!/bin/bash
+
+source $(dirname $0)/d-conf
+
+#YPOS="14"
+#XPOS=$(( $(xdotool getmouselocation | awk -F " " '{print $1}' | cut -d ":" -f 2) - 55 ))
+XPOS=1470
+#TIMING="5"
+ 
+HEIGHT="11"
+WIDTH="125"
+ALIGN="center"
+
+ti=$(date | awk -F " " '{print $4}')
+day=$(date +%D)
+calendar=$(cal -1)
+
+LINES="5"
+
+class="$(dirname $0)/date/classes"
+todo="$(dirname $0)/date/todo"
+
+buttons=" ^fg($cyan)^ca(1, $class) ↓ class^ca()       ^ca(1, $todo) todo ↓ ^ca()"
+
+(echo "^fg($red)Time"; echo "     ^fg($FG2)Time:  ^fg($FG1)$ti"; echo "     ^fg($FG2)Date:  ^fg($FG1)$day"; echo ; echo "$buttons";sleep $TIMING) | dzen2 -bg $BG -fn $FONT -x $XPOS -y $YPOS -w $WIDTH -h $HEIGHT -l $LINES -e 'onstart=uncollapse;button1=exit;button3=exit;button2=exec:urxvt -e ~/bin/todo -e;button4=exit;button5=exit'

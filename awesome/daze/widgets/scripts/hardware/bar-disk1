@@ -1,0 +1,20 @@
+#!/bin/bash
+
+source $(dirname $0)/d-conf
+
+#FREE=$(df -h | grep "/dev/sda" | awk '{gsub(/%/,""); print $5}')
+FREE=$(df -h | grep "/dev/sd" | sed -n "1p" | awk -F " " '{print $3}' | sed s/G//g | awk '{printf "%.0f\n", $1}')
+#USED=$(df -h | grep "/dev/sda" | awk '{gsub(/%/,""); print $3}')
+USED=$(df -h | grep "/dev/sd" | sed -n "1p" | awk -F " " '{print $4}' | sed s/G//g | awk '{printf "%.0f\n", $1}')
+#TOTAL=$(df -h | grep "/dev/sda" | awk '{gsub(/%/,""); print $2}')
+TOTAL=$(df -h | grep "/dev/sd" | sed -n "1p" | awk -F " " '{print $2}' | sed s/G//g | awk '{printf "%.0f\n", $1}')
+
+if [[ "$FREE" -gt "75" ]]; then
+	PERCBAR=`echo -e "$FREE"\
+	| gdbar -bg $bar_bg -fg $warning -h 1 -w 130`
+else
+	PERCBAR=`echo -e "$FREE"\
+	| gdbar -bg $bar_bg -fg $foreground -h 1 -w 130`
+fi
+
+echo "^fg($FG2)⮤ ^fg() $1 $PERCBAR ^fg($highlight)$USED^fg() / $TOTAL"

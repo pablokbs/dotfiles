@@ -1,0 +1,114 @@
+#!/bin/bash
+
+source $(dirname $0)/d-conf
+
+YPOS="14"
+#XPOS="1436"
+XPOS=$(( $(xdotool getmouselocation | awk -F " " '{print $1}' | cut -d ":" -f 2) - 55 ))
+#TIMING="5"
+
+HEIGHT="10"
+WIDTH="160"
+LINES="17"
+ALIGN="left"
+
+
+# Battery {{{
+
+bat_percent=`acpi | awk -F " " '{print $4}' | cut -d "," -f 1 $1`
+bat_time=`acpi | awk -F " " '{print $5}' | cut -d "," -f 1 $1`
+bat_acpi=`cat /sys/class/power_supply/BAT0/status`
+
+if [ "$bat_acpi" == "Full" ]; then
+	status="charged"
+	bat_time="fully charged"
+else
+	if [ "$bat_acpi" = "Discharging" ]; then
+		status="Discharging"
+		timestat="remaining"
+	elif [ "$bat_acpi" = "Charging" ]; then
+		status="Charging"
+		timestat="until charged"
+	elif [ "$bat_acpi" = "Unknown" ]; then
+		status="acting silly"
+	fi
+fi
+
+bstat="^fg($FG2)Status: ^fg($FG1)$status @ $bat_percent"
+btime="^fg($FG2)Time: ^fg($FG1)$bat_time $timestat"
+
+# }}}
+
+
+# CPU {{{
+
+cputemp="         ^fg($FG2) ⮺ Temp ^fg($highlight)$(sensors | grep "temp1" | cut -d'+' -f2 | head -c2)F"
+cpuutiluser=$(iostat -c | sed -n "4p" | awk -F " " '{print $1}')
+cpuutilsystem=$(iostat -c | sed -n "4p" | awk -F " " '{print $3}')
+cpuutilidle=$(iostat -c | sed -n "4p" | awk -F " " '{print $6}')
+
+# }}}
+
+
+# Memory {{{
+
+hddtitle=$(df -h | head -1)
+hddtotal=$(df -h --total | tail -1)
+ramtotal=$(free -m | sed -n "2p" | awk -F " " '{print $2}')
+ramused=$(free -m | sed -n "3p" | awk -F " " '{print $3}')
+
+# }}}
+
+
+# Distro info {{{
+
+kernel="^fg($FG2)⮗ Kernel ^fg()^fg($highlight)$(uname -r)"
+packages="^fg($FG2)⮢ Packages^fg() ^fg($highlight)$(pacman -Q | wc -l)"
+uptime="^fg($FG2)⮖ Uptime^fg() ^fg($highlight)$(uptime | awk '{gsub(/,/,""); print $3}')"
+
+# }}}
+
+
+# Network {{{
+
+id=$(iwconfig wlan0 2> /dev/null | grep ESSID | awk -F\" '{print $2}')
+if [ "$id" = "" ]; then
+	essid="^fg($FG2)ESSID: ^fg($FG1)not connected"
+elif [ "$id" != "" ]; then
+	essid="^fg($FG2)ESSID: ^fg($FG1)$id"
+fi
+
+signal=$(iwconfig wlan0 2> /dev/null | awk -F= '/Quality/ {print $3}' | awk '{print $1 $2}')
+if [ "$signal" = "" ]; then
+	strength="^fg($FG2)Strength: ^fg($FG1)no signal"
+elif [ "$signal" != "" ]; then
+	strength="^fg($FG2)Strength: ^fg($FG1)$signal"
+fi
+
+tun=$(netstat -atn | grep ":11590")
+if [ "$tun" == "" ]; then
+	tunnel="^fg($FG2)Tunnel status: ^fg($FG1)off"
+else
+	tunnel="^fg($FG2)Tunnel status: ^fg($FG1)on"
+fi
+
+# }}}
+
+
+# Bars {{{
+
+cpu_bar_total=`/home/phallus/.config/awesome/daze/widgets/scripts/hardware/bar-cpu 0`
+cpu_bar_0=`/home/phallus/.config/awesome/daze/widgets/scripts/hardware/bar-cpu 1`
+cpu_bar_1=`/home/phallus/.config/awesome/daze/widgets/scripts/hardware/bar-cpu 2`
+cpu_bar_2=`/home/phallus/.config/awesome/daze/widgets/scripts/hardware/bar-cpu 3`
+cpu_bar_3=`/home/phallus/.config/awesome/daze/widgets/scripts/hardware/bar-cpu 4`
+
+mem_bar=`/home/phallus/.config/awesome/daze/widgets/scripts/hardware/bar-ram-lg`
+
+sda_bar=`/home/phallus/.config/awesome/daze/widgets/scripts/hardware/bar-disk1`
+sdb_bar=`/home/phallus/.config/awesome/daze/widgets/scripts/hardware/bar-disk2`
+
+# }}}
+
+
+(echo "^fg($red)Hardware"; echo " $kernel-benis"; echo " $packages  $uptime"; echo " ";echo " $bstat"; echo " $btime"; echo " "; echo "$cpu_bar_0 "; echo "$cpu_bar_1"; echo "$cpu_bar_2"; echo "$cpu_bar_3"; echo "$cputemp"; echo " "; echo "$mem_bar"; echo "^fg($FG2)       $ramused/$ramtotal MB used"; echo " "; echo " $sda_bar"; echo " $sdb_bar"; sleep $TIMING) | dzen2 -bg $BG -fn $FONT -x $XPOS -y $YPOS -h $HEIGHT -w $WIDTH -sa $ALIGN -l $LINES -e 'onstart=uncollapse;button1=exit;button2=exit;button3=exit;button4=exit;button5=exit'

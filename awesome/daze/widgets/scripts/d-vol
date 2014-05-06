@@ -1,0 +1,30 @@
+#!/bin/bash
+source $(dirname $0)/d-conf
+XPOS=$(xdotool getmouselocation | awk -F " " '{print $1}' | cut -d ":" -f 2)
+WIDTH="31"
+LINES="13"
+HEIGHT="10"
+
+vol=$(amixer get Master | egrep -o "[0-9]+%" | head -1 | egrep -o "[0-9]*")
+mvol=$(mpc volume | sed -e s/volume\:\ //g | head -1 | egrep -o "[0-9]*")
+val=()
+mvl=()
+
+for i in {0..100..10}; do
+if [ $vol -gt $i ]; then
+	val+=(" ^p(_LOCK_X)^bg($white0) ")	
+else
+	val+=(" ^p(_LOCK_X)^bg($BG) ")
+fi
+done
+
+for a in {0..100..10}; do
+if [ $mvol -gt $a ]; then
+	mvl+=(" ^p(_LOCK_X)^bg($white0) ")
+else
+	mvl+=(" ^p(_LOCK_X)^bg($BG) ")
+fi
+done
+
+
+(echo "^fg($red)Vol"; echo " ^ca(1,amixer set Master 4%+)+^ca()^pa(16) ^ca(1,mpc volume 100)+^ca()"; echo "${val[10]}^pa(20)${mvl[10]}"; echo "${val[9]}^pa(20)${mvl[9]}"; echo "${val[8]}^pa(20)${mvl[8]}"; echo "${val[7]}^pa(20)${mvl[7]}"; echo "${val[6]}^pa(20)${mvl[6]}"; echo "${val[5]}^pa(20)${mvl[5]}"; echo "${val[4]}^pa(20)${mvl[4]}"; echo "${val[3]}^pa(20)${mvl[3]}"; echo "${val[2]}^pa(20)${mvl[2]}"; echo "${val[1]}^pa(20)${mvl[1]}"; echo "${val[0]}^pa(20)${mvl[0]}"; echo " ^ca(1,amixer set Master 4%-)-^ca()^pa(16) ^ca(1,mpc volume -4)-^ca()";sleep 15) | dzen2 -fg $foreground -bg $background -fn $FONT -x $XPOS -y $YPOS -w $WIDTH -l $LINES -e 'onstart=uncollapse;button1=exit;button3=exit'

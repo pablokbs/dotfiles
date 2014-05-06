@@ -1,0 +1,23 @@
+#!/bin/bash
+
+
+FG1="#b4b4b4"
+FG2="#dcdcdc"
+YPOS="16"
+red="#da637e"
+redb="#f0a3a3"
+blue="#7c96c9"
+blueb="#a8c9eb"
+green="#7cc988"
+greenb="#b0deb7"
+
+
+background="#30303a"
+foreground="#eeeeee"
+highlight="#b4b4b4"
+
+#XPOS=$(xdotool getmouselocation | awk -F " " '{print $1}' | cut -d ":" -f 2)
+
+bar_bg="#66666a"
+notify="#F39D21"
+warning="#D23D3D"

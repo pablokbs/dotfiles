@@ -1,0 +1,30 @@
+#!/bin/bash
+
+source $(dirname $0)/d-conf
+sc="$(dirname $0)/todo"
+XPOS=1470
+WIDTH=125
+
+day=`date | awk -F " " '{print $1}'`
+if [ "$day" = "Mon" ]; then
+	sched=~/edu/.sched/1
+elif [ "$day" = "Tue" ]; then
+	sched=~/edu/.sched/2
+elif [ "$day" = "Wed" ]; then
+	sched=~/edu/.sched/3
+elif [ "$day" = "Thu" ]; then
+	sched=~/edu/.sched/4
+elif [ "$day" = "Fri" ]; then
+	sched=~/edu/.sched/5
+else
+	sched=~/edu/.sched/6
+fi
+
+lines="$(sed = "$sched" | sed 'N;s/\n/ /' | awk -F " " '{print $1}' | sed -n '$p')"
+LINES="$(( $lines + 1 ))"
+
+buttons=" ^fg($FG2)^ca($sc1)⮳  ^ca()                   ^ca($sc3)⮲  ^ca()^fg()"
+
+title="^fg($FG2)today's classes^fg()"
+
+(echo "$title"; cat $sched; echo ; sleep $TIMING) | dzen2 -bg $BG -fn $FONT -x $XPOS -y $YPOS -w $WIDTH -l $LINES -e 'onstart=uncollapse;button1=exit;button3=exit;button2=exit;button3=exit;button4=exit;button5=exit'
